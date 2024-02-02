@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/joho/godotenv"
 	"github.com/sixfwa/fiber-api/database"
 	"github.com/sixfwa/fiber-api/middlewares"
 	"github.com/sixfwa/fiber-api/routes"
@@ -54,10 +53,5 @@ func main() {
 
 	setupRoutes(app)
 
-	if err := godotenv.Load(".env"); err != nil {
-		log.Fatal("Error dotenv file \n" + err.Error())
-		return
-	}
-
-	log.Fatal(app.Listen(os.Getenv("PORT")))
+	log.Fatal(app.Listen(":" + os.Getenv("PORT")))
 }

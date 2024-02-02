@@ -4,7 +4,6 @@ import (
 	"log"
 	"os"
 
-	"github.com/joho/godotenv"
 	"github.com/sixfwa/fiber-api/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -18,11 +17,6 @@ type DbInstance struct {
 var Database DbInstance
 
 func ConnectDb() {
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Fatal("Error dotenv file \n" + err.Error())
-		os.Exit(2)
-	}
 	db, err := gorm.Open(postgres.Open(os.Getenv("DATABASE_URL")), &gorm.Config{})
 	if err != nil {
 		log.Fatal("Failed to connect to the database! \n", err.Error())
