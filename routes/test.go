@@ -9,12 +9,13 @@ import (
 )
 
 type TestSerializer struct {
-	ID    uint   `json:"id" gorm:"primaryKey"`
-	Title string `json:"title_test"`
+	ID        uint   `json:"id" gorm:"primaryKey"`
+	Title     string `json:"title_test"`
+	ImagePath string `json:"image_path"`
 }
 
 func CreateResponseTest(test models.Test) TestSerializer {
-	return TestSerializer{ID: test.ID, Title: test.Title}
+	return TestSerializer{ID: test.ID, Title: test.Title, ImagePath: test.ImagePath}
 }
 
 func CreateTest(c *fiber.Ctx) error {
@@ -77,7 +78,8 @@ func UpdateTest(c *fiber.Ctx) error {
 	}
 
 	type UpdateTest struct {
-		Title string `json:"title_test"`
+		Title     string `json:"title_test"`
+		ImagePath string `json:"image_path"`
 	}
 
 	var updateData UpdateTest
@@ -86,6 +88,7 @@ func UpdateTest(c *fiber.Ctx) error {
 	}
 
 	test.Title = updateData.Title
+	test.ImagePath = updateData.ImagePath
 	database.Database.Db.Save(&test)
 
 	responseTest := CreateResponseTest(test)

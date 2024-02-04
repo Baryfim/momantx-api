@@ -51,6 +51,10 @@ func CreateQuestion(c *fiber.Ctx) error {
 		return c.Status(400).JSON(err.Error())
 	}
 
+	// Обновить связанные объекты test и item
+	database.Database.Db.Model(&test).Updates(&test)
+	database.Database.Db.Model(&item).Updates(&item)
+
 	database.Database.Db.Create(&question)
 
 	responseTest := CreateResponseTest(test)
@@ -64,12 +68,11 @@ func CreateQuestion(c *fiber.Ctx) error {
 func GetQuestions(c *fiber.Ctx) error {
 	questions := []models.Question{}
 
-	database.Database.Db.Find(&questions)
+	database.Database.Db.Preload("Test").Preload("Item.Year").Find(&questions)
+
 	responseQuestions := []QuestionSerializer{}
 	for _, question := range questions {
-		var year models.Year
-		database.Database.Db.Find(&year, "id = ?", question.Item.YaerRefer)
-		responseItem := CreateResponseItem(question.Item, CreateResponseYear(year))
+		responseItem := CreateResponseItem(question.Item, CreateResponseYear(question.Item.Year))
 		responseTest := CreateResponseTest(question.Test)
 
 		responseQuestion := CreateResponseQuestion(question, responseTest, responseItem)
@@ -87,22 +90,21 @@ func FindQuestion(id int, question *models.Question) error {
 
 	return nil
 }
-
 func GetQuestion(c *fiber.Ctx) error {
 	id, err := c.ParamsInt("id")
-	var question models.Question
-
 	if err != nil {
 		return c.Status(400).JSON("Please ensure that :id is an integer")
 	}
 
+	var question models.Question
 	if err := FindQuestion(id, &question); err != nil {
 		return c.Status(400).JSON(err.Error())
 	}
 
-	var year models.Year
-	database.Database.Db.Find(&year, "id = ?", question.Item.YaerRefer)
-	responseItem := CreateResponseItem(question.Item, CreateResponseYear(year))
+	// Используйте Preload для предварительной загрузки связанных объектов
+	database.Database.Db.Preload("Test").Preload("Item.Year").Find(&question)
+
+	responseItem := CreateResponseItem(question.Item, CreateResponseYear(question.Item.Year))
 	responseTest := CreateResponseTest(question.Test)
 
 	responseQuestion := CreateResponseQuestion(question, responseTest, responseItem)
@@ -111,28 +113,30 @@ func GetQuestion(c *fiber.Ctx) error {
 
 func UpdateQuestion(c *fiber.Ctx) error {
 	id, err := c.ParamsInt("id")
-
-	var question models.Question
 	if err != nil {
 		return c.Status(400).JSON("Please ensure that :id is an integer")
 	}
 
+	var question models.Question
 	if err := FindQuestion(id, &question); err != nil {
 		return c.Status(400).JSON(err.Error())
 	}
 
 	type UpdateQuestionData struct {
-		Test          models.Test    `gorm:"foreignKey:TestRefer"`
+		Test          models.Test    `json:"test"`
 		CorrectAnswer string         `json:"correct_answer"`
 		Answers       datatypes.JSON `json:"answers"`
 		QuestionTitle string         `json:"title_question"`
-		Item          models.Item    `gorm:"foreignKey:ItemRefer"`
+		Item          models.Item    `json:"item"`
 	}
 
 	var updateData UpdateQuestionData
 	if err := c.BodyParser(&updateData); err != nil {
 		return c.Status(500).JSON(err.Error())
 	}
+
+	// Используйте Preload для предварительной загрузки связанных объектов
+	database.Database.Db.Preload("Item.Year").Find(&updateData.Item, "id = ?", updateData.Item.ID)
 
 	question.Test = updateData.Test
 	question.CorrectAnswer = updateData.CorrectAnswer
@@ -141,14 +145,10 @@ func UpdateQuestion(c *fiber.Ctx) error {
 	question.Item = updateData.Item
 
 	database.Database.Db.Save(&question)
+	database.Database.Db.Preload("Test").Preload("Item.Year").Find(&question)
 
-	var year models.Year
-	database.Database.Db.Find(&year, "id = ?", question.Item.YaerRefer)
-
-	responseYear := CreateResponseYear(year)
-
-	responseTest := CreateResponseTest(updateData.Test)
-	responseItem := CreateResponseItem(updateData.Item, responseYear)
+	responseItem := CreateResponseItem(question.Item, CreateResponseYear(question.Item.Year))
+	responseTest := CreateResponseTest(question.Test)
 
 	responseQuestion := CreateResponseQuestion(question, responseTest, responseItem)
 	return c.Status(200).JSON(responseQuestion)
@@ -156,18 +156,22 @@ func UpdateQuestion(c *fiber.Ctx) error {
 
 func DeleteQuestion(c *fiber.Ctx) error {
 	id, err := c.ParamsInt("id")
-
-	var question models.Question
 	if err != nil {
 		return c.Status(400).JSON("Please ensure that :id is an integer")
 	}
 
+	var question models.Question
 	if err := FindQuestion(id, &question); err != nil {
 		return c.Status(400).JSON(err.Error())
 	}
 
+	// Удаление связанных объектов Item и Test
+	database.Database.Db.Delete(&question.Item)
+	database.Database.Db.Delete(&question.Test)
+
 	if err := database.Database.Db.Delete(&question).Error; err != nil {
 		return c.Status(404).JSON(err.Error())
 	}
+
 	return c.Status(200).SendString("Successfully Deleted Question")
 }
