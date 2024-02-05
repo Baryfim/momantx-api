@@ -49,6 +49,15 @@ func setupRoutes(app *fiber.App) {
 	app.Post("/api/questions", middlewares.CheckAdminIsValid, routes.CreateQuestion)
 	app.Put("/api/questions/:id", middlewares.CheckAdminIsValid, routes.UpdateQuestion)
 	app.Delete("/api/questions/:id", middlewares.CheckAdminIsValid, routes.DeleteQuestion)
+
+	// Check Token
+	app.Get("/api/auth/:token", func(c *fiber.Ctx) error {
+		token := c.Params("token")
+		if token != os.Getenv("ADMIN_TOKEN") {
+			return c.Status(fiber.StatusBadRequest).SendString("Invalid token parameter")
+		}
+		return c.Status(fiber.StatusAccepted).SendString("Correct Token")
+	})
 }
 
 func main() {
