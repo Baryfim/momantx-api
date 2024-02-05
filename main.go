@@ -23,32 +23,32 @@ func setupRoutes(app *fiber.App) {
 	app.Get("/api/years/:id", routes.GetYear)
 	app.Get("/api/years", routes.GetYears)
 
-	app.Post("/api/years", middlewares.CheackAdminIsValid, routes.CreateYear)
-	app.Put("/api/years/:id", middlewares.CheackAdminIsValid, routes.UpdateYear)
-	app.Delete("/api/years/:id", middlewares.CheackAdminIsValid, routes.DeleteYear)
+	app.Post("/api/years", middlewares.CheckAdminIsValid, routes.CreateYear)
+	app.Put("/api/years/:id", middlewares.CheckAdminIsValid, routes.UpdateYear)
+	app.Delete("/api/years/:id", middlewares.CheckAdminIsValid, routes.DeleteYear)
 
 	// Item endpoints
 	app.Get("/api/items", routes.GetItems)
 	app.Get("/api/items/:id", routes.GetItem)
 
-	app.Post("/api/items", middlewares.CheackAdminIsValid, routes.CreateItem)
-	app.Put("/api/items/:id", middlewares.CheackAdminIsValid, routes.UpdateItem)
-	app.Delete("/api/items/:id", middlewares.CheackAdminIsValid, routes.DeleteItem)
+	app.Post("/api/items", middlewares.CheckAdminIsValid, routes.CreateItem)
+	app.Put("/api/items/:id", middlewares.CheckAdminIsValid, routes.UpdateItem)
+	app.Delete("/api/items/:id", middlewares.CheckAdminIsValid, routes.DeleteItem)
 
 	// Test endpoints
 	app.Get("/api/tests/:id", routes.GetTest)
 	app.Get("/api/tests", routes.GetTests)
 
-	app.Post("/api/tests", middlewares.CheackAdminIsValid, routes.CreateTest)
-	app.Put("/api/tests/:id", middlewares.CheackAdminIsValid, routes.UpdateTest)
-	app.Delete("/api/tests/:id", middlewares.CheackAdminIsValid, routes.DeleteTest)
+	app.Post("/api/tests", middlewares.CheckAdminIsValid, routes.CreateTest)
+	app.Put("/api/tests/:id", middlewares.CheckAdminIsValid, routes.UpdateTest)
+	app.Delete("/api/tests/:id", middlewares.CheckAdminIsValid, routes.DeleteTest)
 
 	// Questions endpoints
 	app.Get("/api/questions/:id", routes.GetQuestion)
 	app.Get("/api/questions", routes.GetQuestions)
-	app.Post("/api/questions", middlewares.CheackAdminIsValid, routes.CreateQuestion)
-	app.Put("/api/questions/:id", middlewares.CheackAdminIsValid, routes.UpdateQuestion)
-	app.Delete("/api/questions/:id", middlewares.CheackAdminIsValid, routes.DeleteQuestion)
+	app.Post("/api/questions", middlewares.CheckAdminIsValid, routes.CreateQuestion)
+	app.Put("/api/questions/:id", middlewares.CheckAdminIsValid, routes.UpdateQuestion)
+	app.Delete("/api/questions/:id", middlewares.CheckAdminIsValid, routes.DeleteQuestion)
 }
 
 func main() {
