@@ -6,15 +6,15 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-var COOKIES_FIELDS = []string{"auth"}
+func CheckAdminIsValid(c *fiber.Ctx) error {
+	// Получаем значение токена из заголовка 'Authorization'
+	token := c.Get("Authorization")
 
-func CheackAdminIsValid(c *fiber.Ctx) error {
-	for i := 0; i < len(COOKIES_FIELDS); i++ {
-		cookie := c.Cookies(COOKIES_FIELDS[i])
-
-		if cookie != os.Getenv("ADMIN_TOKEN") {
-			return c.Status(fiber.StatusUnauthorized).SendString("Unauthorized")
-		}
+	// Проверяем, что токен присутствует и соответствует ожидаемому значению
+	if token == "" || token != "Bearer "+os.Getenv("ADMIN_TOKEN") {
+		return c.Status(fiber.StatusUnauthorized).SendString("Unauthorized")
 	}
+
+	// Если все проверки пройдены, переходим к следующему middleware или обработчику
 	return c.Next()
 }
