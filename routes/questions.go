@@ -130,7 +130,7 @@ func UpdateQuestion(c *fiber.Ctx) error {
 		Answers       datatypes.JSON `json:"answers"`
 		QuestionTitle string         `json:"title_question"`
 		Item          models.Item    `json:"item"`
-		QuestionInfo  string
+		QuestionInfo  string         `json:"question_info"`
 	}
 
 	var updateData UpdateQuestionData
