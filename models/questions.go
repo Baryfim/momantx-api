@@ -16,6 +16,7 @@ type Question struct {
 	QuestionTitle string         `json:"title_question"`
 	ItemRefer     int            `json:"item_id"`
 	Item          Item           `gorm:"foreignKey:ItemRefer"`
+	QuestionInfo  string         `json:"question_info"`
 }
 
 func (q *Question) BeforeSave(tx *gorm.DB) (err error) {

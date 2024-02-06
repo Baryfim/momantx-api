@@ -16,6 +16,7 @@ type QuestionSerializer struct {
 	Answers       datatypes.JSON `json:"answers"`
 	QuestionTitle string         `json:"title_question"`
 	Item          ItemSerializer `gorm:"foreignKey:ItemRefer"`
+	QuestionInfo  string         `json:"question_info"`
 }
 
 func CreateResponseQuestion(question models.Question, test TestSerializer, item ItemSerializer) QuestionSerializer {
@@ -26,6 +27,7 @@ func CreateResponseQuestion(question models.Question, test TestSerializer, item 
 		Answers:       question.Answers,
 		QuestionTitle: question.QuestionTitle,
 		Item:          item,
+		QuestionInfo:  question.QuestionInfo,
 	}
 }
 
@@ -128,6 +130,7 @@ func UpdateQuestion(c *fiber.Ctx) error {
 		Answers       datatypes.JSON `json:"answers"`
 		QuestionTitle string         `json:"title_question"`
 		Item          models.Item    `json:"item"`
+		QuestionInfo  string
 	}
 
 	var updateData UpdateQuestionData
@@ -143,6 +146,7 @@ func UpdateQuestion(c *fiber.Ctx) error {
 	question.Answers = updateData.Answers
 	question.QuestionTitle = updateData.QuestionTitle
 	question.Item = updateData.Item
+	question.QuestionInfo = updateData.QuestionInfo
 
 	database.Database.Db.Save(&question)
 	database.Database.Db.Preload("Test").Preload("Item.Year").Find(&question)
